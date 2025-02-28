@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protocol Handler Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>Protocol Handler Test</h1>
+
+<div class="container">
+    <h2>Test Your Custom Protocol Handler</h2>
+    <p>This page will test your custom <code>open://</code> protocol handler by attempting to open both a file and a folder.</p>
+
+    <div class="warning">
+        <strong>Note:</strong> Make sure that:
+        <ul>
+            <li>The protocol handler application has been registered (run as administrator)</li>
+            <li>The file <code>C:\Temp\test.xlsx</code> exists on your system</li>
+            <li>The folder <code>C:\Temp</code> exists on your system</li>
+        </ul>
+    </div>
+
+    <h3>Test 1: Open Excel File</h3>
+    <p>Click the button below to test opening a file:</p>
+    <a href="open://C:/Temp/test.xlsx" class="button">Open Excel File</a>
+    <p>Or click this link: <a href="open://C:/Temp/test.xlsx">open://C:/Temp/test.xlsx</a></p>
+
+    <h3>Test 2: Open Folder</h3>
+    <p>Click the button below to test opening a folder:</p>
+    <a href="open://C:/Temp" class="button" style="background-color: #2196F3;">Open Temp Folder</a>
+    <p>Or click this link: <a href="open://C:/Temp">open://C:/Temp</a></p>
+
+    <h3>Troubleshooting</h3>
+    <p>If nothing happens when you click the link:</p>
+    <ul>
+        <li>Verify that the protocol handler is properly registered</li>
+        <li>Check that the file exists at the specified location</li>
+        <li>Look at the console output of your protocol handler application for error messages</li>
+    </ul>
+</div>
+
+<script>
+    // This script can detect if the protocol handler is installed
+    function testProtocolHandler() {
+        var protocolName = "open://";
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+
+        iframe.onload = function() {
+            // If we get here without an error, the protocol is likely not registered
+            console.log("Protocol handler may not be registered");
+            alert("The protocol handler doesn't appear to be registered. Please run your application as administrator to register it.");
+        };
+
+        setTimeout(function() {
+            document.body.removeChild(iframe);
+        }, 500);
+
+        iframe.contentWindow.location.href = protocolName + "test";
+        return false;
+    }
+</script>
+</body>
+</html>
