@@ -79,7 +79,7 @@ Edit the following constants in the source code before building:
 
 ## License
 
-[Insert appropriate license here]
+MIT
 
 ## Contributing
 
