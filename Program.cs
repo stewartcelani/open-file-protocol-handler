@@ -34,32 +34,36 @@ void HandleProtocol(string url)
     {
         Console.WriteLine($"Received URL: {url}");
         
-        // Extract the path part no matter what protocol is used
-        var uri = new Uri(url);
+        // Skip the protocol part manually instead of using Uri class
+        string path = url;
         
-        // Get the complete path after the protocol and authority
-        string pathPart = uri.AbsolutePath;
-        
-        // If there's a host part in the URI, it could be part of the path (like a drive letter)
-        if (!string.IsNullOrEmpty(uri.Host))
+        // Remove the protocol prefix (open://)
+        if (path.StartsWith($"{PROTOCOL_NAME}://", StringComparison.OrdinalIgnoreCase))
         {
-            // This handles cases like "openfile://C/Temp/file.txt"
-            pathPart = uri.Host + pathPart;
+            path = path.Substring($"{PROTOCOL_NAME}://".Length);
         }
         
-        // Unescape the path and convert to Windows format
-        var path = Uri.UnescapeDataString(pathPart);
+        // URL decode the path
+        path = Uri.UnescapeDataString(path);
         
-        // Fix Windows drive letter format (C/path → C:/path)
-        if (path.Length >= 2 && char.IsLetter(path[0]) && path[1] == '/')
+        Console.WriteLine($"Decoded path: {path}");
+        
+        // Fix potential C:/ vs C|/ issues
+        if (path.Length >= 2 && char.IsLetter(path[0]) && (path[1] == '|' || path[1] == ':'))
         {
-            path = path[0] + ":" + path.Substring(1);
+            path = path[0] + ":" + path.Substring(2);
         }
         
-        // Replace forward slashes with backslashes
+        // Also check for the case where the colon was encoded as %3A
+        if (path.Length >= 3 && char.IsLetter(path[0]) && path.Substring(1, 3) == "%3A")
+        {
+            path = path[0] + ":" + path.Substring(4);
+        }
+        
+        // Convert forward slashes to backslashes for Windows
         path = path.Replace('/', '\\');
         
-        Console.WriteLine($"Path: {path}");
+        Console.WriteLine($"Final path: {path}");
 
         // Determine if it's a file or folder and act accordingly
         if (File.Exists(path))
