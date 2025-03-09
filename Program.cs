@@ -3,7 +3,7 @@ using System.Security.Principal;
 using Microsoft.Win32;
 
 const string PROTOCOL_NAME = "open";
-const bool DEBUG_MODE = true;  // Set to false for production
+const bool DEBUG_MODE = true; // Set to false for production
 
 if (args.Length > 0)
 {
@@ -33,36 +33,39 @@ void HandleProtocol(string url)
     try
     {
         Console.WriteLine($"Received URL: {url}");
-        
+
         // Skip the protocol part manually instead of using Uri class
         string path = url;
-        
+
         // Remove the protocol prefix (open://)
         if (path.StartsWith($"{PROTOCOL_NAME}://", StringComparison.OrdinalIgnoreCase))
         {
             path = path.Substring($"{PROTOCOL_NAME}://".Length);
         }
-        
+
         // URL decode the path
         path = Uri.UnescapeDataString(path);
-        
+
         Console.WriteLine($"Decoded path: {path}");
-        
+
+        // Remove any trailing slashes
+        path = path.TrimEnd('/', '\\');
+
         // Fix potential C:/ vs C|/ issues
         if (path.Length >= 2 && char.IsLetter(path[0]) && (path[1] == '|' || path[1] == ':'))
         {
             path = path[0] + ":" + path.Substring(2);
         }
-        
+
         // Also check for the case where the colon was encoded as %3A
         if (path.Length >= 3 && char.IsLetter(path[0]) && path.Substring(1, 3) == "%3A")
         {
             path = path[0] + ":" + path.Substring(4);
         }
-        
+
         // Convert forward slashes to backslashes for Windows
         path = path.Replace('/', '\\');
-        
+
         Console.WriteLine($"Final path: {path}");
 
         // Determine if it's a file or folder and act accordingly
@@ -84,7 +87,7 @@ void HandleProtocol(string url)
                 Arguments = $"\"{path}\"",
                 UseShellExecute = false
             };
-            
+
             Process.Start(startInfo);
         }
         else
@@ -109,7 +112,7 @@ void HandleProtocol(string url)
 void RegisterProtocolHandler()
 {
     var exePath = $"\"{Environment.ProcessPath}\" \"%1\"";
-    
+
     try
     {
         using var key = Registry.ClassesRoot.CreateSubKey(PROTOCOL_NAME);
